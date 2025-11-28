@@ -2,19 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Repositories\BookRepository;
+use App\Helpers\PaginateHelper;
+use App\Helpers\ResponseHelper;
+use App\Http\Handlers\BookHandler;
+use App\Http\Resources\BookResource;
 use App\Models\Book;
+use App\Resources\Books\BookPaginateResource;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
+    protected $repository;
+    protected $handler;
+
+    public function __construct(BookRepository $repository, BookHandler $handler)
+    {
+        $this->repository = $repository;
+        $this->handler = $handler;
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Book::all());
+        try {
+            $perPage = $request->get('per_page', 10);
+            $filters = $request->only([
+                'sort_by',
+                'sort_direction',
+                'search',
+                'date_from',
+                'date_to',
+                'date'
+            ]);
+
+            $books = $this->repository->getAllBooks($filters, $perPage);
+
+            return ResponseHelper::success(
+                BookPaginateResource::make($books, PaginateHelper::getPaginate($books)),
+                trans('alert.fetch_data_success'),
+                pagination: true
+            );
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
     }
 
     /**
@@ -62,13 +96,16 @@ class BookController extends Controller
      */
     public function show($id)
     {
-        $book = Book::find($id);
+        try {
+            $book = $this->repository->show($id);
 
-        if (!$book) {
-            return response()->json(['message' => 'Buku tidak ditemukan'], 404);
+            return ResponseHelper::success(
+                new BookResource($book),
+                trans('alert.fetch_data_success')
+            );
+        } catch (\Throwable $th) {
+            
         }
-
-        return response()->json($book);
     }
 
     /**
