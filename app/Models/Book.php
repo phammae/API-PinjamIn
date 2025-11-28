@@ -18,8 +18,8 @@ class Book extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function getImageUrlAttribute()
+    public function getCoversUrlAttribute()
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        return $this->covers ? asset('storage/' . $this->covers) : null;
     }
 }
