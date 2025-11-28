@@ -8,12 +8,9 @@ use App\Helpers\ResponseHelper;
 use App\Http\Handlers\BookHandler;
 use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
-use App\Models\Book;
 use App\Resources\Books\BookPaginateResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -82,6 +79,19 @@ class BookController extends Controller
         try {
             $book = $this->repository->show($id);
 
+            return ResponseHelper::success(
+                new BookResource($book),
+                trans('alert.fetch_data_success')
+            );
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+    }
+
+    public function slug($slug)
+    {
+        try {
+            $book = $this->repository->slug($slug);
             return ResponseHelper::success(
                 new BookResource($book),
                 trans('alert.fetch_data_success')

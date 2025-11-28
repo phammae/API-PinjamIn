@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Book;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -11,6 +12,16 @@ class BookObserver
     public function created(Book $book): void
     {
         $this->generateQrCode($book);
+    }
+
+    public function creating(Book $book)
+    {
+        $book->slug = Str::slug($book->title);
+    }
+
+    public function updating(Book $book)
+    {
+        $book->slug = Str::slug($book->title);
     }
 
     public function deleting(Book $book): void

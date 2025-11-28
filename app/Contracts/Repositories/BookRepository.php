@@ -23,4 +23,9 @@ class BookRepository extends BaseRepository implements BookInterface
 
         return $query->paginate($perPage);
     }
+
+    public function slug(string $slug)
+    {
+        return $this->model->with('title')->where('slug', $slug)->firstOrFail();
+    }
 }
