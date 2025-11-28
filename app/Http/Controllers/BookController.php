@@ -6,10 +6,12 @@ use App\Contracts\Repositories\BookRepository;
 use App\Helpers\PaginateHelper;
 use App\Helpers\ResponseHelper;
 use App\Http\Handlers\BookHandler;
+use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use App\Resources\Books\BookPaginateResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 
@@ -54,41 +56,22 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BookRequest $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'author' => 'required',
-            'publisher' => 'nullable',
-            'year' => 'nullable|integer',
-            'isbn' => 'required|unique:books,isbn',
-            'stock' => 'required|integer',
-        ]);
+        $data = $request->validated();
+        DB::beginTransaction();
+        try {
+            $book = $this->handler->handleCreate($data);
 
-        $book = Book::create([
-            'title' => $request->title,
-            'author' => $request->author,
-            'publisher' => $request->publisher,
-            'year' => $request->year,
-            'isbn' => $request->isbn,
-            'stock' => $request->stock,
-        ]);
-
-        $qrPath = "qrcodes/" . $book->id . ".png";
-
-        Storage::disk('public')->put(
-            $qrPath,
-            QrCode::format('png')->size(300)->generate("BOOK_ID".$book->id)
-        );
-
-        $book->update([
-            'qr_code' => $qrPath
-        ]);
-
-        return response()->json([
-            'message' => 'Buku berhasil ditambahkan',
-            'data' => $book
-        ], 201);
+            DB::commit();
+            return ResponseHelper::success(
+                new BookResource($book),
+                trans('alert.add_success')
+            );
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ResponseHelper::error(message: trans('alert.add_failed') . " => " . $th->getMessage());
+        }
     }
 
     /**
@@ -104,27 +87,29 @@ class BookController extends Controller
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
-            
+            return ResponseHelper::error(message: $th->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(BookRequest $request, $id)
     {
-        $book = Book::find($id);
+        $data = $request->validated();
+        DB::beginTransaction();
+        try {
+            $book = $this->handler->handleUpdate($id, $data);
 
-        if (!$book) {
-            return response()->json(['message' => 'Buku tidak ditemukan'], 404);
+            DB::commit();
+            return ResponseHelper::success(
+                new BookResource($book),
+                trans('alert.update_success')
+            );
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ResponseHelper::error(message: trans('alert.update_failed') . " => " . $th->getMessage());
         }
-
-        $book->update($request->all());
-
-        return response()->json([
-            'meesage' => 'Buku berhasil diupdate',
-            'data' => $book
-        ]);
     }
 
     /**
@@ -132,18 +117,15 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
-        $book = Book::find($id);
+        DB::beginTransaction();
+        try {
+            $this->handler->handleDelete($id);
 
-        if (!$book) {
-            return response()->json(['message' => 'Buku tidak ditemukan'], 404);
+            DB::commit();
+            return ResponseHelper::success(message: trans('alert.delete_success'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ResponseHelper::error(message: trans('alert.delete_failed') . " => " . $th->getMessage());
         }
-
-        if ($book->qr_code && Storage::disk('public')->exists($book->qr_code)) {
-            Storage::disk('public')->delete($book->qr_code);
-        }
-
-        $book->delete();
-
-        return response()->json(['meesage' => 'Buku berhasil dihapus']);
     }
 }
