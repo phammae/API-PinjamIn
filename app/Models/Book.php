@@ -2,17 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
 
 class Book extends Model
 {
-    protected $fillable = [
-        'title',
-        'author',
-        'publisher',
-        'year',
-        'isbn',
-        'qr_code',
-        'stock'
-    ];
+    use HasApiTokens, HasUuids;
+    protected $guarded = [];
 }
