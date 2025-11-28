@@ -14,7 +14,7 @@ return new class extends Migration
         if (Schema::hasTable('books') && !Schema::hasColumn('books', 'slug')) {
             Schema::table('books', function (Blueprint $table) {
                 $table->string('slug')->nullable()->after('title');
-                $table->string('image')->nullable()->after('author');
+                $table->string('covers')->nullable()->after('author');
             });
         }
     }
