@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('publisher')->nullable();
             $table->integer('year')->nullable();
             $table->string('isbn')->unique();
-            $table->string('qr_code')->unique();
+            $table->string('qr_code')->nullable();
             $table->integer('stock')->default(1);
             $table->timestamps();
         });
