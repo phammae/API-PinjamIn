@@ -2,7 +2,9 @@
 
 namespace App\Contracts\Interfaces;
 
-interface BookInterface extends BaseInterface
+use App\Contracts\Interfaces\BaseInterface;
+
+interface MovieInterface extends BaseInterface
 {
     public function getAllBooks(array $filters, int $perPage = 10);
 }

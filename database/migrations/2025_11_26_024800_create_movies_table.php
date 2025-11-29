@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('books', function (Blueprint $table) {
+        Schema::create('movies', function (Blueprint $table) {
             $table->uuid('id')->unique();
             $table->string('title');
-            $table->string('author');
-            $table->string('publisher')->nullable();
+            $table->string('slug');
+            $table->string('production_house');
+            $table->json('genre');
+            $table->string('covers')->nullable();
             $table->integer('year')->nullable();
-            $table->string('isbn')->unique();
             $table->string('qr_code')->nullable();
             $table->integer('stock')->default(1);
             $table->timestamps();

@@ -3,12 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Contracts\Interfaces\BookInterface;
-use App\Contracts\Repositories\BookRepository;
 use App\Contracts\Interfaces\AuthInterface;
 use App\Contracts\Repositories\AuthRepository;
-use App\Models\Book;
-use App\Observers\BookObserver;
+use App\Models\Movie;
+use App\Observers\MovieObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,8 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind Book Interface
-        $this->app->bind(BookInterface::class, BookRepository::class);
+
         
         // Bind Auth Interface
         $this->app->bind(AuthInterface::class, AuthRepository::class);
@@ -30,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Register Book Observer
-        Book::observe(BookObserver::class);
+        Movie::observe(MovieObserver::class);
     }
 }
