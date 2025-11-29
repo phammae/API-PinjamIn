@@ -22,12 +22,13 @@ class MovieRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required',
-            'author' => 'required',
-            'publisher' => 'nullable',
-            'year' => 'nullable|integer',
-            'isbn' => 'required|unique:books,isbn',
-            'stock' => 'required|integer'
+            'title' => 'required|string|max:255',
+            'production_house' => 'required|string|max:255',
+            'genre' => 'required|array',
+            'genre.*' => 'required|string',
+            'covers' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'stock' => 'nullable|integer|min:0|max:1000',
         ];
     }
 }
