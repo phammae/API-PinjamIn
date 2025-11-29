@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Handlers\MovieHandler;
 use App\Http\Requests\MovieRequest;
 use App\Http\Resources\Movie\MovieResource;
-use App\Resources\Movie\MoviePaginateResource;
+use App\Http\Resources\Movie\MoviePaginateResource;
 use App\Contracts\Repositories\MovieRepository;
 
 class MovieController extends Controller

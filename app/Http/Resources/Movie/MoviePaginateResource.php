@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Resources\Movie;
+namespace App\Http\Resources\Movie;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\Movie\MovieResource;
