@@ -2,71 +2,113 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
+use App\Http\Handlers\AuthHandler;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\ResendOtpRequest;
+use App\Http\Requests\VerifyOtpRequest;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function login(Request $request) 
+    protected $handler;
+
+    public function __construct(AuthHandler $handler)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $this->handler = $handler;
+    }
 
-        $user = User::where('email', $request->email)->first();
+    public function register(RegisterRequest $request)
+    {
+        $data = $request->validated();
+        DB::beginTransaction();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Email atau Password salah'
-            ], 401);
+        try {
+
+            $result = $this->handler->handleRegister($data);
+
+            DB::commit();
+            return responseHelper::success($result, trans('alert.register_success'), Response::HTTP_CREATED);
+
+        } catch (\Throwable $th) {  
+            DB::rollback();
+            return ResponseHelper::error(message: trans('alert.register_failed') . " => " .$th->getMessage());
         }
-
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
-        ]);
     }
 
-    public function register(Request $request)
+    public function verifyOtp(VerifyOtpRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
-        ]);
+        $data = $request->validated();
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        DB::beginTransaction();
+        try {
+            $result = $this->handler->handlerVerifyOtp($data['user_id'], $data['otp']);
 
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Register berhasil',
-            'token' => $token,
-            'user' => $user
-        ], 201);
+            DB::commit();
+            return ResponseHelper::success($result, trans('alert.verify_success'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ResponseHelper::error(message: $th->getMessage(), code: $th->getCode() ?: Response::HTTP_BAD_REQUEST);
+        }
     }
+
+    public function resendOtp(ResendOtpRequest $request)
+    {
+        $data = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            $result = $this->handler->handleResendOtp($data['user_id']);
+
+            DB::commit();
+            return ResponseHelper::success($result, trans('alert.otp_success'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+    }
+
+    public function login(LoginRequest $request) 
+    {
+        $data = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            $result = $this->handler->handleLogin($data['email'], $data['password']);
+
+            DB::commit();
+            return ResponseHelper::success($result, trans('alert.login_success'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $code = $th->getCode() === 403 ? Response::HTTP_FORBIDDEN : Response::HTTP_UNAUTHORIZED;
+            return ResponseHelper::error(message: $th->getMessage(), code: $code);
+        }
+    }
+
 
     public function me(Request $request)
     {
-        return response()->json([
-            'user' => $request->user()
-        ]);
+        try {
+            return ResponseHelper::success($request->user(), trans('alert.get_current_user'));
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
     }
+
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        DB::beginTransaction();
+        try {
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'message' => 'Logout berhasil'
-        ]);
+            DB::commit();
+            return ResponseHelper::success(message: trans('alert.logout_success'));
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: trans('auth.logout_error') . '=>' . $th->getMessage());
+        }
     }
 }

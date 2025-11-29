@@ -58,11 +58,11 @@ class MovieController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $book = $this->handler->handleCreate($data);
+            $movie = $this->handler->handleCreate($data);
 
             DB::commit();
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.add_success')
             );
         } catch (\Throwable $th) {
@@ -77,10 +77,10 @@ class MovieController extends Controller
     public function show($id)
     {
         try {
-            $book = $this->repository->show($id);
+            $movie = $this->repository->show($id);
 
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
@@ -91,9 +91,9 @@ class MovieController extends Controller
     public function slug($slug)
     {
         try {
-            $book = $this->repository->slug($slug);
+            $movie = $this->repository->slug($slug);
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
@@ -109,11 +109,11 @@ class MovieController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $book = $this->handler->handleUpdate($id, $data);
+            $movie = $this->handler->handleUpdate($id, $data);
 
             DB::commit();
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.update_success')
             );
         } catch (\Throwable $th) {

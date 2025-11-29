@@ -9,6 +9,10 @@ Route::middleware(['enable.cors', 'throttle:60,1'])->group(function () {
     // authentication
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
+    Route::post('/login', [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
 
@@ -19,12 +23,12 @@ Route::middleware(['enable.cors', 'throttle:60,1'])->group(function () {
         Route::middleware(['role:' . RoleEnum::ADMIN->value])->prefix('admin')->group(function () {
             Route::apiResource('movies', MovieController::class);
         });
-        
+
         // staff route
         Route::middleware(['role:' . RoleEnum::STAFF->value])->prefix('staff')->group(function () {
             Route::apiResource('movies', MovieController::class)->only(['index', 'show', 'update']);
         });
-        
+
         // user route
         Route::middleware(['role:' . RoleEnum::USER->value])->prefix('user')->group(function () {
             Route::get('movies', [MovieController::class, 'index']);

@@ -12,10 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone')->nullable()->unique();
-            $table->string('otp_code')->nullable();
-            $table->timestamp('otp_expires_at')->nullable();
-            $table->boolean('is_verified')->default(false);
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable()->unique()->after('email');
+            }
+            if (!Schema::hasColumn('users', 'otp_code')) {
+                $table->string('otp_code')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'otp_expires_at')) {
+                $table->timestamp('otp_expires_at')->nullable();
+            }
         });
     }
 
@@ -25,10 +30,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('phone');
-            $table->dropColumn('otp_code');
-            $table->dropColumn('otp_expires_at');
-            $table->dropColumn('is_verified');
+            if (Schema::hasColumn('users', 'phone')) {
+                $table->dropColumn('phone');
+            }
+            if (Schema::hasColumn('users', 'otp_code')) {
+                $table->dropColumn('otp_code');
+            }
+            if (Schema::hasColumn('users', 'otp_expires_at')) {
+                $table->dropColumn('otp_expires_at');
+            }
+            if (Schema::hasColumn('users', 'is_verified')) {
+                $table->dropColumn('is_verified');
+            }
         });
     }
 };

@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
+use function Symfony\Component\Clock\now;
+
 class RoleSeeder extends Seeder
 {
     /**
@@ -27,7 +29,8 @@ class RoleSeeder extends Seeder
                 ['email' => $userEmail],
                 [
                     'name' => $role,
-                    'password' => bcrypt('password')
+                    'password' => bcrypt('password'),
+                    'email_verified_at' => now(),
                 ]
             );
 
