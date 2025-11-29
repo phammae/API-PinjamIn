@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
-class Book extends Model
+class Movie extends Model
 {
     use HasApiTokens, HasUuids, SoftDeletes;
     protected $guarded = [];

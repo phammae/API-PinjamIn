@@ -2,15 +2,15 @@
 
 namespace App\Http\Handlers;
 
-use App\Contracts\Repositories\BookRepository;
+use App\Contracts\Repositories\MovieRepository;
 use App\Helpers\UploadHelper;
 use Illuminate\Http\UploadedFile;
 
-class BookHandler
+class MovieHandler
 {
     protected $repository;
 
-    public function __construct(BookRepository $repository)
+    public function __construct(MovieRepository $repository)
     {
         $this->repository = $repository;
     }
@@ -26,11 +26,11 @@ class BookHandler
 
     public function handleUpdate(mixed $id, array $data)
     {
-        $book = $this->repository->show($id);
+        $movie = $this->repository->show($id);
 
         if (isset($data['covers']) && $data['covers'] instanceof UploadedFile) {
-            if ($book->covers) {
-                UploadHelper::deleteFile($book->covers);
+            if ($movie->covers) {
+                UploadHelper::deleteFile($movie->covers);
             }
             $data['covers'] = UploadHelper::uploadFile($data['covers'], 'books/covers');
         }
@@ -41,10 +41,10 @@ class BookHandler
 
     public function handleDelete(mixed $id)
     {
-        $book = $this->repository->show($id);
+        $movie = $this->repository->show($id);
 
-        if ($book->covers) {
-            UploadHelper::deleteFile($book->covers);
+        if ($movie->covers) {
+            UploadHelper::deleteFile($movie->covers);
         }
 
         return $this->repository->delete($id);
