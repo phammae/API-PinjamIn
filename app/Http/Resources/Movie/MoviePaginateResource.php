@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Resources\Books;
+namespace App\Resources\Movie;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\BookResource;
+use App\Http\Resources\Movie\MovieResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class BookPaginateResource extends ResourceCollection
+class MoviePaginateResource extends ResourceCollection
 {
     protected array $paginate;
 
@@ -19,7 +19,7 @@ class BookPaginateResource extends ResourceCollection
     public function toArray(Request $request)
     {
         return [
-            'data' => BookResource::collection($this->collection),
+            'data' => MovieResource::collection($this->collection),
             'paginate' => $this->paginate,
         ];
     }

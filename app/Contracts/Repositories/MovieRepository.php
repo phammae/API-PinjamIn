@@ -2,13 +2,13 @@
 
 namespace App\Contracts\Repositories;
 
-use App\Contracts\Interfaces\BookInterface;
 use App\Helpers\QueryFilterHelper;
-use App\Models\Book;
+use App\Contracts\Interfaces\MovieInterface;
+use App\Models\Movie;
 
-class BookRepository extends BaseRepository implements BookInterface
+class MovieRepository extends BaseRepository implements MovieInterface
 {
-    public function __construct(Book $model)
+    public function __construct(Movie $model)
     {
         $this->model = $model;
     }
@@ -16,7 +16,7 @@ class BookRepository extends BaseRepository implements BookInterface
     public function getAllBooks(array $filters, int $perPage = 10)
     {
         $query = $this->model->newQuery();
-        $searchColumns = ['author', 'title', 'publisher', 'year', 'isbn'];
+        $searchColumns = ['production_house', 'title', 'year'];
 
         QueryFilterHelper::applyFilters($query, $filters, $searchColumns);
         QueryFilterHelper::applySorting($query, $filters);

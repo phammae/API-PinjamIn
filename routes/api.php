@@ -3,7 +3,7 @@
 use App\Enums\RoleEnum;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BookController;
+use App\Http\Controllers\MovieController;
 
 Route::middleware(['enable.cors', 'thorttle:60,1'])->group(function () {
     // authentication
@@ -17,18 +17,18 @@ Route::middleware(['enable.cors', 'thorttle:60,1'])->group(function () {
 
         // admin route
         Route::middleware(['role:' . RoleEnum::ADMIN->value])->prefix('admin')->group(function () {
-            Route::apiResource('books', BookController::class);
+            Route::apiResource('books', MovieController::class);
         });
         
         // staff route
         Route::middleware(['role:' . RoleEnum::STAFF->value])->prefix('staff')->group(function () {
-            Route::apiResource('books', BookController::class);
+            Route::apiResource('books', MovieController::class)->only(['index', 'show', 'update']);
         });
         
         // user route
         Route::middleware(['role:' . RoleEnum::USER->value])->prefix('user')->group(function () {
-            Route::get('books', [BookController::class, 'index']);
-            Route::get('detail/{slug}', [BookController::class, 'slug']);
+            Route::get('books', [MovieController::class, 'index']);
+            Route::get('detail/{slug}', [MovieController::class, 'slug']);
         });
     });
 });

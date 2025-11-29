@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\Repositories\BookRepository;
+use Illuminate\Http\Request;
 use App\Helpers\PaginateHelper;
 use App\Helpers\ResponseHelper;
-use App\Http\Handlers\BookHandler;
-use App\Http\Requests\BookRequest;
-use App\Http\Resources\BookResource;
-use App\Resources\Books\BookPaginateResource;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Handlers\MovieHandler;
+use App\Http\Requests\MovieRequest;
+use App\Http\Resources\Movie\MovieResource;
+use App\Resources\Movie\MoviePaginateResource;
+use App\Contracts\Repositories\MovieRepository;
 
-class BookController extends Controller
+class MovieController extends Controller
 {
     protected $repository;
     protected $handler;
 
-    public function __construct(BookRepository $repository, BookHandler $handler)
+    public function __construct(MovieRepository $repository, MovieHandler $handler)
     {
         $this->repository = $repository;
         $this->handler = $handler;
@@ -41,7 +41,7 @@ class BookController extends Controller
             $books = $this->repository->getAllBooks($filters, $perPage);
 
             return ResponseHelper::success(
-                BookPaginateResource::make($books, PaginateHelper::getPaginate($books)),
+                MoviePaginateResource::make($books, PaginateHelper::getPaginate($books)),
                 trans('alert.fetch_data_success'),
                 pagination: true
             );
@@ -53,7 +53,7 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(BookRequest $request)
+    public function store(MovieRequest $request)
     {
         $data = $request->validated();
         DB::beginTransaction();
@@ -62,7 +62,7 @@ class BookController extends Controller
 
             DB::commit();
             return ResponseHelper::success(
-                new BookResource($book),
+                new MovieResource($book),
                 trans('alert.add_success')
             );
         } catch (\Throwable $th) {
@@ -80,7 +80,7 @@ class BookController extends Controller
             $book = $this->repository->show($id);
 
             return ResponseHelper::success(
-                new BookResource($book),
+                new MovieResource($book),
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
@@ -93,7 +93,7 @@ class BookController extends Controller
         try {
             $book = $this->repository->slug($slug);
             return ResponseHelper::success(
-                new BookResource($book),
+                new MovieResource($book),
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
@@ -104,7 +104,7 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(BookRequest $request, $id)
+    public function update(MovieRequest $request, $id)
     {
         $data = $request->validated();
         DB::beginTransaction();
@@ -113,7 +113,7 @@ class BookController extends Controller
 
             DB::commit();
             return ResponseHelper::success(
-                new BookResource($book),
+                new MovieResource($book),
                 trans('alert.update_success')
             );
         } catch (\Throwable $th) {
