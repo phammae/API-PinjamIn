@@ -21,9 +21,6 @@ return new class extends Migration
             if (!Schema::hasColumn('users', 'otp_expires_at')) {
                 $table->timestamp('otp_expires_at')->nullable();
             }
-            if (!Schema::hasColumn('users', 'is_verified')) {
-                $table->boolean('is_verified')->default(false);
-            }
         });
     }
 

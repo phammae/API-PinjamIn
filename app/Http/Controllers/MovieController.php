@@ -25,7 +25,7 @@ class MovieController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
             $perPage = $request->get('per_page', 10);
@@ -58,11 +58,11 @@ class MovieController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $book = $this->handler->handleCreate($data);
+            $movie = $this->handler->handleCreate($data);
 
             DB::commit();
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.add_success')
             );
         } catch (\Throwable $th) {
@@ -76,10 +76,11 @@ class MovieController extends Controller
      */
     public function show($id)
     {
-        $book = Book::find($id);
+        try {
+            $movie = $this->repository->show($id);
 
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
@@ -90,9 +91,9 @@ class MovieController extends Controller
     public function slug($slug)
     {
         try {
-            $book = $this->repository->slug($slug);
+            $movie = $this->repository->slug($slug);
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.fetch_data_success')
             );
         } catch (\Throwable $th) {
@@ -108,11 +109,11 @@ class MovieController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $book = $this->handler->handleUpdate($id, $data);
+            $movie = $this->handler->handleUpdate($id, $data);
 
             DB::commit();
             return ResponseHelper::success(
-                new MovieResource($book),
+                new MovieResource($movie),
                 trans('alert.update_success')
             );
         } catch (\Throwable $th) {
@@ -126,18 +127,15 @@ class MovieController extends Controller
      */
     public function destroy($id)
     {
-        $book = Book::find($id);
+        DB::beginTransaction();
+        try {
+            $this->handler->handleDelete($id);
 
-        if (!$book) {
-            return response()->json(['message' => 'Buku tidak ditemukan'], 404);
+            DB::commit();
+            return ResponseHelper::success(message: trans('alert.delete_success'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ResponseHelper::error(message: trans('alert.delete_failed') . " => " . $th->getMessage());
         }
-
-        if ($book->qr_code && Storage::disk('public')->exists($book->qr_code)) {
-            Storage::disk('public')->delete($book->qr_code);
-        }
-
-        $book->delete();
-
-        return response()->json(['meesage' => 'Buku berhasil dihapus']);
     }
 }

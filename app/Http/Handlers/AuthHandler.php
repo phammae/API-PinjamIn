@@ -102,7 +102,7 @@ class AuthHandler
             throw new \Exception(trans('auth.failed'));
         }
 
-        if (!$user->is_verified) {
+        if (!$user->email_verified_at) {
             throw new \Exception(trans('auth.not_verified'), 403);
         }
 

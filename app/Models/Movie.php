@@ -13,6 +13,7 @@ class Movie extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'genre' => 'array',
         'created_at' => 'datetime',
         'deleted_at' => 'datetime',
         'updated_at' => 'datetime',

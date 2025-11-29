@@ -6,6 +6,8 @@ use App\Contracts\Interfaces\AuthInterface;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+use function Symfony\Component\Clock\now;
+
 class AuthRepository implements AuthInterface
 {
     protected $model;
@@ -41,7 +43,7 @@ class AuthRepository implements AuthInterface
         $user->update([
             'otp_code' => null,
             'otp_expires_at' => null,
-            'is_verified' => true,
+            'email_verified_at' => now(),
         ]);
 
         return $user->fresh();
